@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[15],{115:function(o){o.exports=JSON.parse('{"allTagsPath":"/eko-developer-docs/blog/tags","slug":"docusaurus","name":"docusaurus","count":3,"permalink":"/eko-developer-docs/blog/tags/docusaurus"}')}}]);
