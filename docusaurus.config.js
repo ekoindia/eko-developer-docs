@@ -1,16 +1,16 @@
 module.exports = {
   title: 'Eko Platform Services',
   tagline: 'Develop with EPS',
-  url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/',
+  url: 'https://ekoindia.github.io',
+  baseUrl: '/eko-developer-docs',
   favicon: 'img/favicon.ico',
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'ekoindia',			// Usually your GitHub org/user name.
+  projectName: 'eko-developer-docs', 	// Usually your repo name.
   themeConfig: {
     navbar: {
       title: 'My Site',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'Eko.in',
         src: 'img/logo.svg',
       },
       links: [
