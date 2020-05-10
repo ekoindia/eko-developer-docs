@@ -2,7 +2,7 @@ module.exports = {
   title: 'Eko Platform Services',
   tagline: 'Develop with EPS',
   url: 'https://ekoindia.github.io',
-  baseUrl: '/eko-developer-docs',
+  baseUrl: '/eko-developer-docs/',
   favicon: 'img/favicon.ico',
   organizationName: 'ekoindia',			// Usually your GitHub org/user name.
   projectName: 'eko-developer-docs', 	// Usually your repo name.
