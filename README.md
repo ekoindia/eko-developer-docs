@@ -1,6 +1,6 @@
-# Website
+# Eko Developer Portal
 
-This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
+Open-source developer portal for Eko. Read developer guides and API docs. Build with Eko! 
 
 ### Installation
 
