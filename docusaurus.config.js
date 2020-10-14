@@ -20,10 +20,10 @@ module.exports = {
         alt: "Eko's Logo",
         src: "img/logo.svg",
       },
-      items: [
+      links: [
         {
-          to: "docs/",
-          activeBasePath: "docs",
+          to: "docs/doc1",
+          activeBasePath: "docs/doc1",
           label: "Docs",
           position: "left",
         },
@@ -43,7 +43,7 @@ module.exports = {
           items: [
             {
               label: "Style Guide",
-              to: "docs/",
+              to: "docs/doc1",
             },
             {
               label: "Second Doc",
