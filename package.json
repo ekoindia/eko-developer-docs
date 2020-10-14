@@ -13,6 +13,7 @@
   "dependencies": {
     "@docusaurus/core": "^2.0.0-alpha.58",
     "@docusaurus/preset-classic": "^2.0.0-alpha.58",
+    "@mdx-js/react": "^1.6.18",
     "clsx": "^1.1.1",
     "docusaurus-plugin-openapi": "^0.0.12",
     "react": "^16.8.4",
