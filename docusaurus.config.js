@@ -3,19 +3,20 @@ module.exports = {
   tagline: 'Develop with EPS',
   url: 'https://ekoindia.github.io',
   baseUrl: '/eko-developer-docs/',
+  onBrokenLinks: 'throw',
   favicon: 'img/favicon.ico',
-  organizationName: 'ekoindia',			// Usually your GitHub org/user name.
-  projectName: 'eko-developer-docs', 	// Usually your repo name.
+  organizationName: 'ekoindia', // Usually your GitHub org/user name.
+  projectName: 'eko-developer-docs', // Usually your repo name.
   themeConfig: {
     navbar: {
-      title: 'My Site',
+      title: "Home",
       logo: {
         alt: 'Eko.in',
         src: 'img/logo.svg',
       },
-      links: [
+      items: [
         {
-          to: 'docs/doc1',
+          to: 'docs/',
           activeBasePath: 'docs',
           label: 'Docs',
           position: 'left',
@@ -25,6 +26,12 @@ module.exports = {
           href: 'https://github.com/facebook/docusaurus',
           label: 'GitHub',
           position: 'right',
+        },
+        {
+          to: 'refs/',
+          activeBasePath: 'refs',
+          label: 'API References',
+          position: 'left',
         },
       ],
     },
@@ -36,11 +43,11 @@ module.exports = {
           items: [
             {
               label: 'Style Guide',
-              to: 'docs/doc1',
+              to: 'docs/',
             },
             {
               label: 'Second Doc',
-              to: 'docs/doc2',
+              to: 'docs/doc2/',
             },
           ],
         },
@@ -75,7 +82,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Eko India Financial Services`,
     },
   },
   presets: [
