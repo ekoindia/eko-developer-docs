@@ -1,0 +1,1830 @@
+openapi: 3.0.2
+info:
+  title: EPS API
+  contact: {}
+  version: 0.1.1
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  description: >
+    This is a **work-in-progress** OpenAPI specification for the EPS developer
+    platform.
+
+    # Introduction
+
+    This API definition is intended to to be a good starting point for
+    describing your API in
+
+    [OpenAPI/Swagger
+    format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md).
+
+    It also demonstrates features of
+    [create-openapi-repo](https://github.com/Redocly/create-openapi-repo) tool
+    and
+
+    [Redoc](https://github.com/Redocly/Redoc) documentation engine. So beyond
+    the standard OpenAPI syntax we use a few
+
+    [vendor
+    extensions](https://github.com/Redocly/Redoc/blob/master/docs/redoc-vendor-extensions.md).
+
+
+    # OpenAPI Specification
+
+    The goal of The OpenAPI Specification is to define a standard,
+    language-agnostic interface to REST APIs which
+
+    allows both humans and computers to discover and understand the capabilities
+    of the service without access to source
+
+    code, documentation, or through network traffic inspection. When properly
+    defined via OpenAPI, a consumer can
+
+    understand and interact with the remote service with a minimal amount of
+    implementation logic. Similar to what
+
+    interfaces have done for lower-level programming, OpenAPI removes the
+    guesswork in calling the service.
+externalDocs:
+  description: Checkout the developer portal to read the detailed guides
+  url: 'https://developers.eko.in'
+tags:
+  - name: Agent Management
+    description: Onboard your agents/users and manage services for them.
+  - name: Customers
+    description: >-
+      Create and verify customers. Perform recurring transactions and add
+      multiple recipients to the same customer.
+  - name: Customer KYC
+    description: >-
+      Upgrade customer KYC status and enable higher amount of transactions per
+      month.
+  - name: Recipients
+    description: Manage recipients for your customers to transfer money to.
+  - name: Transaction
+    description: Money Transfer APIs.
+  - name: Verification APIs
+  - name: Banks
+    description: Get bank information.
+  - name: Token
+    description: Accept real-time cash-payment for your digital services.
+  - name: Partner Account
+    description: Settle your funds into your bank account.
+  - name: Fund Settlement
+  - name: AePS Fund Settlement
+servers:
+  - url: 'https://staging.eko.in:25004/ekoicici/v1'
+paths:
+  /user/services:
+    get:
+      summary: Get Services
+      description: >
+        Return a list of services available for your users
+
+        1. This API returns a unique service_code for each service
+
+        2. This service_code needs to be used while activating the service for
+        your users
+
+        3. The services available are:
+           * AePS Cashout
+           * eKYC
+           * Cash Deposit into SBI/KVB branches
+           * CDM service at KVB
+      operationId: getUserServices
+      tags:
+        - Agent Management
+      parameters:
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/ekoicici/v1'
+  /user/request/otp:
+    put:
+      summary: Request OTP
+      description: >
+        Send an OTP to your agent/user to verify their mobile number
+
+        * Mobile number of the user is an important parameter that needs to be
+        captured during onboarding of a user.
+
+        * Every mobile number needs to be verified via OTP.
+
+        * You will not receive the OTP on the mobile number on UAT platform
+      operationId: putUserRequestOtp
+      tags:
+        - Agent Management
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                initiator_id:
+                  type: integer
+                  format: int64
+              required:
+                - initiator_id
+            example:
+              initiator_id: 9962981729
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://api.eko.in:25002/ekoicici/v1'
+  /user/verify:
+    put:
+      summary: Verify User Mobile Number
+      description: Verify your agent/user's mobile number via OTP
+      operationId: EkoapiV1UserVerify_PUT
+      tags:
+        - Agent Management
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/ekoapi/v1'
+  /user/onboard:
+    put:
+      summary: Onboard User
+      description: >
+        Onboard a new agent/user on the platform.
+
+
+        We verify the PAN number provided by you in this step and match the name
+        returned in PAN verification and the name coming in API. So please do
+        enter valid PAN number and it should be of the same merchant/user whose
+        name you are providing.
+
+
+        The name matching is only for the production, on staging we won't be
+        matching the name from PAN verification and in the request.
+      operationId: putUserOnboard
+      tags:
+        - Agent Management
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/ekoicici/v1'
+  /user/service/activate:
+    put:
+      summary: Activate Service
+      description: >
+        Activate a particular service for your agent/user.
+
+
+        ### Mandatory Parameyters for AePS Activation:
+
+
+        For the AePS activation, you need to pass user_code, initiator_id,
+        service_code = 43 or 1, modelname, devicenumber, office_address,
+        address_as_per_proof, pan_card as mandatory and either of
+        voter_card_front and voter_card_back or aadhar_front and aadhar_back.
+
+
+        Either of Voter Card or Aadhaar Card is required.
+
+        If you are sending voter card send in the parameters voter_card_front
+        and voter_card_back. If you are sending Aadhaar card send in the
+        parameters aadhar_front and aadhar_back.
+
+
+        By activating AePS for merchants using the new service code = 43, they
+        will be able to conduct AePS transactions instantly. If we find any
+        mismatch in documents, the merchantâ€™s AePS business will be paused. We
+        will communicate the same to you within 24 working hours of merchant
+        activation and ask for re-uploading updated documents. Post re-upload,
+        the business will continue as usual.
+
+        Note - We highly recommend to activate all new AePS merchants using the
+        new service code = 43 to benefit from seamless integration.
+
+        Please note that if you do not change service code = 1, all your
+        merchants will be on-boarded using the current flow with a 7 working day
+        TAT for merchant activation.
+
+
+        ### AePS Activation TAT
+
+        After activation, the user state goes into pending state and it will
+        take 3 business days for any user to get activated for AePS.
+
+
+        ### Please Note:
+
+        1. In case of AePS service activation, the user_code is the unique code
+        received in response to the Onboard User API
+
+        2. Either of Voter Card or Aadhaar Card is required.
+
+        3. If you are sending voter card send in the parameters voter_card_front
+        and voter_card_back. If you are sending aadhaar card send int the
+        parameters aadhar_front and aadhar_back
+
+        4. The file size for the documents for AePS activation should be less
+        than 1MB.
+
+        5. We accept the images in JPEG, JPG and PDF format, not in PNG. PNG
+        images are rejected from the partner bank.
+      operationId: putUserServiceActivate
+      tags:
+        - Agent Management
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/ekoicici/v1'
+  '/user/services/user_code:{user_code}':
+    get:
+      summary: User Services Enquiry
+      description: GetUserServices
+      operationId: |
+        Returns the status of each service associated with your agent/user.
+      tags:
+        - Agent Management
+      parameters:
+        - name: user_code
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 20310003
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/ekoicici/v1'
+  /onboard:
+    put:
+      summary: Onboard_PUT
+      description: 'https://api.eko.in:25002/ekoicici/v1/user/onboard'
+      operationId: Onboard_PUT
+      tags:
+        - '????'
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://api.eko.in:25002/ekoicici/v1/user'
+  '/customers/mobile_number:{mobile_number}':
+    get:
+      summary: Get customer information
+      description: Get a customer's basic profile information
+      operationId: EkoapiV1CustomersMobileNumber9004073059_GET
+      tags:
+        - Customers
+      parameters:
+        - name: mobile_number
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 9004073059
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:8811990077':
+    put:
+      summary: EkoapiV1CustomersMobileNumber8811990077_PUT
+      description: Create a customer
+      operationId: EkoapiV1CustomersMobileNumber8811990077_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/product:changename/verification/otp:1633':
+    put:
+      summary: EkoapiV1CustomersProductChangenameVerificationOtp1633_PUT
+      description: Name Change verification
+      operationId: EkoapiV1CustomersProductChangenameVerificationOtp1633_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:8811990077/product:changename/otp':
+    post:
+      summary: EkoapiV1CustomersMobileNumber8811990077ProductChangenameOtp_POST
+      description: Resend OTP for Name change verification
+      operationId: EkoapiV1CustomersMobileNumber8811990077ProductChangenameOtp_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9899796311':
+    put:
+      summary: EkoapiV1CustomersMobileNumber9899796311_PUT
+      description: Manual KYC using the Aadhaar XML
+      operationId: EkoapiV1CustomersMobileNumber9899796311_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/verification/otp:135':
+    put:
+      summary: EkoapiV1CustomersVerificationOtp135_PUT
+      description: Verify customer identity
+      operationId: EkoapiV1CustomersVerificationOtp135_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:7065155445/otp':
+    post:
+      summary: EkoapiV1CustomersMobileNumber7065155445Otp_POST
+      description: Resend customer identity verification otp
+      operationId: EkoapiV1CustomersMobileNumber7065155445Otp_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/banks:
+    get:
+      summary: EkoapiV1Banks_GET
+      description: Retrieve bank details via bank_code
+      operationId: EkoapiV1Banks_GET
+      parameters:
+        - name: bank_code
+          in: query
+          description: ''
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: IDFB
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/banks/bankcode:KKBK/accounts/1711650498':
+    post:
+      summary: EkoapiV1BanksBankcodeKKBKAccounts1711650498_POST
+      description: Account verification
+      operationId: EkoapiV1BanksBankcodeKKBKAccounts1711650498_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:8811990077/recipients/acc_ifsc:10037431941_IDFB0041382':
+    put:
+      summary: >-
+        EkoapiV1CustomersMobileNumber8811990077RecipientsAccIfsc10037431941IDFB0041382_PUT
+      description: Add recipient using account and ifsc
+      operationId: >-
+        EkoapiV1CustomersMobileNumber8811990077RecipientsAccIfsc10037431941IDFB0041382_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:8811990077/recipients/acc_bankcode:1711650498_KKBK':
+    put:
+      summary: >-
+        EkoapiV1CustomersMobileNumber8811990077RecipientsAccBankcode1711650498KKBK_PUT
+      description: Add recipient using account and bankcode
+      operationId: >-
+        EkoapiV1CustomersMobileNumber8811990077RecipientsAccBankcode1711650498KKBK_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:8800776655/recipients':
+    get:
+      summary: EkoapiV1CustomersMobileNumber8800776655Recipients_GET
+      description: Retrieve all recipients
+      operationId: EkoapiV1CustomersMobileNumber8800776655Recipients_GET
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:8811990077/recipients/recipient_id:10016183':
+    get:
+      summary: EkoapiV1CustomersMobileNumber8811990077RecipientsRecipientId10016183_GET
+      description: Get Recipient Detail
+      operationId: EkoapiV1CustomersMobileNumber8811990077RecipientsRecipientId10016183_GET
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:8811990077/recipients/recipient_id:10016176':
+    delete:
+      summary: >-
+        EkoapiV1CustomersMobileNumber8811990077RecipientsRecipientId10016176_DELETE
+      description: Remove recipient
+      operationId: >-
+        EkoapiV1CustomersMobileNumber8811990077RecipientsRecipientId10016176_DELETE
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/split:
+    get:
+      summary: EkoapiV1TransactionsSplit_GET
+      description: 'Split Transaction API '
+      operationId: EkoapiV1TransactionsSplit_GET
+      parameters:
+        - name: customer_id
+          in: query
+          description: ''
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int64
+            example: 8811990077
+        - name: recipient_id
+          in: query
+          description: ''
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+            example: 10016175
+        - name: amount
+          in: query
+          description: ''
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+            example: 20000
+        - name: channel
+          in: query
+          description: ''
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions:
+    post:
+      summary: EkoapiV1Transactions_POST
+      description: Send money using IMPS channel
+      operationId: EkoapiV1Transactions_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/4093/verify:
+    put:
+      summary: EkoapiV1Transactions4093Verify_PUT
+      description: Transaction OTP  Verify API
+      operationId: EkoapiV1Transactions4093Verify_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/4091/otp:
+    post:
+      summary: EkoapiV1Transactions4091Otp_POST
+      description: Resend OTP PPI wallet Transaction
+      operationId: EkoapiV1Transactions4091Otp_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/15162673:
+    get:
+      summary: EkoapiV1Transactions15162673_GET
+      description: Transaction Inquiry using Eko TID
+      operationId: EkoapiV1Transactions15162673_GET
+      parameters:
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/transactions/client_ref_id:Settlement0000010':
+    get:
+      summary: EkoapiV1TransactionsClientRefIdSettlement0000010_GET
+      description: Transaction Inquiry using partner reference
+      operationId: EkoapiV1TransactionsClientRefIdSettlement0000010_GET
+      parameters:
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/transactions/batch/client_ref_id:EKO351551516341814':
+    get:
+      summary: EkoapiV1TransactionsBatchClientRefIdEKO351551516341814_GET
+      description: batch inquiry using client ref
+      operationId: EkoapiV1TransactionsBatchClientRefIdEKO351551516341814_GET
+      parameters:
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/15313195/refund:
+    post:
+      summary: EkoapiV1Transactions15313195Refund_POST
+      description: Refund Transaction
+      operationId: EkoapiV1Transactions15313195Refund_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/15346925/refund/otp:
+    post:
+      summary: EkoapiV1Transactions15346925RefundOtp_POST
+      description: Resend Refund otp
+      operationId: EkoapiV1Transactions15346925RefundOtp_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/pan/verify:
+    post:
+      summary: EkoapiV1PanVerify_POST
+      description: Pan Verification
+      operationId: EkoapiV1PanVerify_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9910028267/balance':
+    get:
+      summary: EkoapiV1CustomersMobileNumber9910028267Balance_GET
+      description: Wallet Balance Inquiry API
+      operationId: EkoapiV1CustomersMobileNumber9910028267Balance_GET
+      parameters:
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9922334455/product:indonepal':
+    get:
+      summary: EkoapiV1CustomersMobileNumber9922334455ProductIndonepal_GET
+      description: Retrieve a customer
+      operationId: EkoapiV1CustomersMobileNumber9922334455ProductIndonepal_GET
+      parameters:
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9922334466/product:indonepal':
+    put:
+      summary: EkoapiV1CustomersMobileNumber9922334466ProductIndonepal_PUT
+      description: Create a customer
+      operationId: EkoapiV1CustomersMobileNumber9922334466ProductIndonepal_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/product:indonepal/verification/otp:203':
+    put:
+      summary: EkoapiV1CustomersProductIndonepalVerificationOtp203_PUT
+      description: Verify customer identity
+      operationId: EkoapiV1CustomersProductIndonepalVerificationOtp203_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9922334477/product:indonepal/otp':
+    post:
+      summary: EkoapiV1CustomersMobileNumber9922334477ProductIndonepalOtp_POST
+      description: Resend customer identity verification otp
+      operationId: EkoapiV1CustomersMobileNumber9922334477ProductIndonepalOtp_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9922334466/product:indonepal/recipients':
+    put:
+      summary: EkoapiV1CustomersMobileNumber9922334466ProductIndonepalRecipients_PUT
+      description: Add recipient for cash payout
+      operationId: EkoapiV1CustomersMobileNumber9922334466ProductIndonepalRecipients_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9922334466/product:indonepal/recipients/acc_indonepalbranch:32147368490404004005_11':
+    put:
+      summary: >-
+        EkoapiV1CustomersMobileNumber9922334466ProductIndonepalRecipientsAccIndonepalbranch3214736849040400400511_PUT
+      description: Add recipient for account deposit
+      operationId: >-
+        EkoapiV1CustomersMobileNumber9922334466ProductIndonepalRecipientsAccIndonepalbranch3214736849040400400511_PUT
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/customers/mobile_number:9922334455/product:indonepal/recipients':
+    get:
+      summary: EkoapiV1CustomersMobileNumber9922334455ProductIndonepalRecipients_GET
+      description: Retrieve all recipients
+      operationId: EkoapiV1CustomersMobileNumber9922334455ProductIndonepalRecipients_GET
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/12870517:
+    get:
+      summary: EkoapiV1Transactions12870517_GET
+      description: Transaction inquiry using Eko TID
+      operationId: EkoapiV1Transactions12870517_GET
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/transactions/client_ref_id:EKO20180219164433190':
+    get:
+      summary: EkoapiV1TransactionsClientRefIdEKO20180219164433190_GET
+      description: Transaction Inquiry API using Partner reference number
+      operationId: EkoapiV1TransactionsClientRefIdEKO20180219164433190_GET
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/16165313/refund:
+    post:
+      summary: EkoapiV1Transactions16165313Refund_POST
+      description: Refund Transaction
+      operationId: EkoapiV1Transactions16165313Refund_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /ekoapi/v1/transactions/15065953/refund/otp:
+    post:
+      summary: EkoapiV1Transactions15065953RefundOtp_POST
+      description: Resend Refund otp
+      operationId: EkoapiV1Transactions15065953RefundOtp_POST
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/agent/user_code:20310003/settlementaccount':
+    put:
+      summary: EkoapiV1AgentUserCode20310003Settlementaccount_PUT
+      description: 'Add bank account [Fund Settlement]'
+      operationId: EkoapiV1AgentUserCode20310003Settlementaccount_PUT
+      tags:
+        - AePS Fund Settlement
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/agent/user_code:20310003/settlementaccounts':
+    get:
+      summary: EkoapiV1AgentUserCode20310003Settlementaccounts_GET
+      description: 'Get list of recipients mapped to user [Fund Settlement]'
+      operationId: EkoapiV1AgentUserCode20310003Settlementaccounts_GET
+      tags:
+        - AePS Fund Settlement
+      parameters:
+        - name: service_code
+          in: query
+          description: ''
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+            example: 39
+        - name: Content-Type
+          in: header
+          description: ''
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: application/x-www-form-urlencoded
+        - $ref: '#/components/parameters/initiator_id'
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  '/ekoapi/v1/agent/user_code:20310003/settlement':
+    post:
+      summary: EkoapiV1AgentUserCode20310003Settlement_POST
+      description: Initiate Settlement
+      operationId: EkoapiV1AgentUserCode20310003Settlement_POST
+      tags:
+        - AePS Fund Settlement
+      parameters:
+        - $ref: '#/components/parameters/developer_key'
+        - $ref: '#/components/parameters/secret-key'
+        - $ref: '#/components/parameters/secret-key-timestamp'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.in:25004/'
+          variables: {}
+  /requestloan:
+    post:
+      summary: Requestloan_POST
+      description: Request a loan
+      operationId: Requestloan_POST
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+            example:
+              ekoLoanHistory:
+                - loanProviderName: Rupaiya Exchange
+                  loanAmount: 30000
+                  status: Acceptance In Review
+                - loanProviderName: Happy Loans
+                  loanAmount: 50000
+                  status: Loan Disbursed Partially
+                - loanProviderName: Mintifi
+                  loanAmount: 50000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Mintifi
+                  loanAmount: 50000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Rupaiya Exchange
+                  loanAmount: 30000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Mintifi
+                  loanAmount: 150000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Mintifi
+                  loanAmount: 100000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Rupaiya Exchange
+                  loanAmount: 120000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Mintifi
+                  loanAmount: 120000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Mintifi
+                  loanAmount: 100000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Mintifi
+                  loanAmount: 80000
+                  status: Loan Rejected By Merchant
+                - loanProviderName: Rupaiya Exchange
+                  loanAmount: 80000
+                  status: Initiated
+              isWeekendLoan: 0
+              agent_code: 99040481
+              loan_amount: 80000
+              city: Pune City
+              street: Smart Mobile 394 New Mangalwar Peth
+              state: Maharashtra
+              pincode: 411011
+              firstName: Yogita
+              lastName: Sudhir
+              panNo: FLLPS1033N
+              aadhaarNo: 484253598001
+              dob: 1995-06-13T00:00:00.000Z
+              mobileNo: 7066259607
+              emailID: smartphone.xerox1@gmail.com
+              agent_type: MERCHANT
+              onboardedDate: 2017-05-25T00:00:00.000Z
+              transactions:
+                - transactionsType: Sales
+                  transactionsValue: 1316244
+                  transactionsMonthYear: 1/2018
+                  transactionsValueType: Volume
+                  primary: 0
+                - transactionsType: Sales
+                  transactionsValue: 2088795
+                  transactionsMonthYear: 12/2017
+                  transactionsValueType: Volume
+                  primary: 0
+                - transactionsType: Sales
+                  transactionsValue: 1418880
+                  transactionsMonthYear: 11/2017
+                  transactionsValueType: Volume
+                  primary: 0
+                - transactionsType: Sales
+                  transactionsValue: 1288967
+                  transactionsMonthYear: 10/2017
+                  transactionsValueType: Volume
+                  primary: 0
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https:///<service_provider_base_url>/eko/'
+          variables: {}
+  /create/evalue:
+    put:
+      summary: CreateEvalue_PUT
+      description: Evalue request
+      operationId: CreateEvalue_PUT
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request1'
+            example:
+              remarks: test
+              date: 22022017
+              bank_ref_num: 99872229222
+              amount: 150000
+              agent_code: 99021232
+              source: Service Provider Name
+              prefunder_bank: 1
+              payment_mode: 4
+              client_ref_id: 24774761487417893000
+              bc: 1
+              bank_code: HDFC
+              loan_id: 429f2733-5b9f-40e6-9b22- fe642efb8aeb
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.co.in:25004/ekoicici/v1/loan/'
+          variables: {}
+  '/loanid:<product_id>':
+    get:
+      summary: LoanidProductId_GET
+      description: Loan inquiry
+      operationId: LoanidProductId_GET
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.co.in:25004/ekoicici/v1/loan/'
+          variables: {}
+  /offerloan:
+    post:
+      summary: Offerloan_POST
+      description: Loan callback
+      operationId: Offerloan_POST
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request2'
+            example:
+              plan_id: null
+              product_id: 4e736c66-5032-7683-4b6d-697771584847
+              step_num: 1
+              proceed: true
+              consumerId: null
+              claimed: false
+              data:
+                loanAmount: 100
+                interestRate: 2
+                interestType: percent
+                repaymentDays: null
+                processingFees: 100
+                loanType: ''
+                tenure: 30
+                additionalData: ''
+                autoRepaymentStatus: 1
+                expiryDate: '15-11-2017 21:00:00'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: >-
+            http://test.webservices.eko.co.in:8080/ekoloanwebservice/webapi/<partner_code>/
+          variables: {}
+  /requestloan/accept:
+    post:
+      summary: RequestloanAccept_POST
+      description: Accept a loan
+      operationId: RequestloanAccept_POST
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request3'
+            example:
+              product_id: a1ef2e46-c2ed-4b0a-93bb-46954cb4f9a0
+              step_num: 2
+              data:
+                consent:
+                  customerAccept: true
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https:///<service_provider_base_url>/eko/'
+          variables: {}
+  /repayment:
+    post:
+      summary: Repayment_POST
+      description: Loan repayment
+      operationId: Repayment_POST
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request4'
+            example:
+              loan_id: cbc27623-a0af-4838-9f8d-73a829183321
+              disbursement_amount: 100000
+              disbursement_date: 2017-02-24T00:00:00.000Z
+              due_date: 2017-02-28T00:00:00.000Z
+              repay_amount: 56565
+              account_no: 22324234324
+              reference_no: 2342423423
+              sanction_id: fsdfsdfsdfsdfsf
+              tranche_id: sdfsdfsdfsdferefsds
+              source: 1
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+      servers:
+        - url: 'https://staging.eko.co.in:25004/ekoicici/v1/loan/'
+          variables: {}
+components:
+  parameters:
+    initiator_id:
+      name: initiator_id
+      in: query
+      description: ''
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 9962981729
+    developer_key:
+      name: developer_key
+      in: header
+      description: ''
+      required: true
+      schema:
+        type: string
+        example: becbbce45f79c6f5109f848acd540567
+    secret-key:
+      name: secret-key
+      in: header
+      description: ''
+      required: true
+      schema:
+        type: string
+        example: MC6dKW278tBef+AuqL/5rW2K3WgOegF0ZHLW/FriZQw=
+    secret-key-timestamp:
+      name: secret-key-timestamp
+      in: header
+      description: ''
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1516705204593
+  schemas:
+    Request:
+      title: Request
+      required:
+        - ekoLoanHistory
+        - isWeekendLoan
+        - agent_code
+        - loan_amount
+        - city
+        - street
+        - state
+        - pincode
+        - firstName
+        - lastName
+        - panNo
+        - aadhaarNo
+        - dob
+        - mobileNo
+        - emailID
+        - agent_type
+        - onboardedDate
+        - transactions
+      type: object
+      properties:
+        ekoLoanHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/EkoLoanHistory'
+          description: ''
+        isWeekendLoan:
+          type: integer
+          format: int32
+        agent_code:
+          type: string
+        loan_amount:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        panNo:
+          type: string
+        aadhaarNo:
+          type: string
+        dob:
+          type: string
+        mobileNo:
+          type: string
+        emailID:
+          type: string
+        agent_type:
+          type: string
+        onboardedDate:
+          type: string
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+          description: ''
+      example:
+        ekoLoanHistory:
+          - loanProviderName: Rupaiya Exchange
+            loanAmount: 30000
+            status: Acceptance In Review
+          - loanProviderName: Happy Loans
+            loanAmount: 50000
+            status: Loan Disbursed Partially
+          - loanProviderName: Mintifi
+            loanAmount: 50000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Mintifi
+            loanAmount: 50000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Rupaiya Exchange
+            loanAmount: 30000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Mintifi
+            loanAmount: 150000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Mintifi
+            loanAmount: 100000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Rupaiya Exchange
+            loanAmount: 120000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Mintifi
+            loanAmount: 120000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Mintifi
+            loanAmount: 100000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Mintifi
+            loanAmount: 80000
+            status: Loan Rejected By Merchant
+          - loanProviderName: Rupaiya Exchange
+            loanAmount: 80000
+            status: Initiated
+        isWeekendLoan: 0
+        agent_code: 99040481
+        loan_amount: 80000
+        city: Pune City
+        street: Smart Mobile 394 New Mangalwar Peth
+        state: Maharashtra
+        pincode: 411011
+        firstName: Yogita
+        lastName: Sudhir
+        panNo: FLLPS1033N
+        aadhaarNo: 484253598001
+        dob: 1995-06-13T00:00:00.000Z
+        mobileNo: 7066259607
+        emailID: smartphone.xerox1@gmail.com
+        agent_type: MERCHANT
+        onboardedDate: 2017-05-25T00:00:00.000Z
+        transactions:
+          - transactionsType: Sales
+            transactionsValue: 1316244
+            transactionsMonthYear: 1/2018
+            transactionsValueType: Volume
+            primary: 0
+          - transactionsType: Sales
+            transactionsValue: 2088795
+            transactionsMonthYear: 12/2017
+            transactionsValueType: Volume
+            primary: 0
+          - transactionsType: Sales
+            transactionsValue: 1418880
+            transactionsMonthYear: 11/2017
+            transactionsValueType: Volume
+            primary: 0
+          - transactionsType: Sales
+            transactionsValue: 1288967
+            transactionsMonthYear: 10/2017
+            transactionsValueType: Volume
+            primary: 0
+    EkoLoanHistory:
+      title: EkoLoanHistory
+      required:
+        - loanProviderName
+        - loanAmount
+        - status
+      type: object
+      properties:
+        loanProviderName:
+          type: string
+        loanAmount:
+          type: string
+        status:
+          type: string
+      example:
+        loanProviderName: Rupaiya Exchange
+        loanAmount: 30000
+        status: Acceptance In Review
+    Transaction:
+      title: Transaction
+      required:
+        - transactionsType
+        - transactionsValue
+        - transactionsMonthYear
+        - transactionsValueType
+        - primary
+      type: object
+      properties:
+        transactionsType:
+          type: string
+        transactionsValue:
+          type: string
+        transactionsMonthYear:
+          type: string
+        transactionsValueType:
+          type: string
+        primary:
+          type: string
+      example:
+        transactionsType: Sales
+        transactionsValue: 1316244
+        transactionsMonthYear: 1/2018
+        transactionsValueType: Volume
+        primary: 0
+    Request1:
+      title: Request1
+      required:
+        - remarks
+        - date
+        - bank_ref_num
+        - amount
+        - agent_code
+        - source
+        - prefunder_bank
+        - payment_mode
+        - client_ref_id
+        - bc
+        - bank_code
+        - loan_id
+      type: object
+      properties:
+        remarks:
+          type: string
+        date:
+          type: string
+        bank_ref_num:
+          type: string
+        amount:
+          type: string
+        agent_code:
+          type: string
+        source:
+          type: string
+        prefunder_bank:
+          type: string
+        payment_mode:
+          type: string
+        client_ref_id:
+          type: string
+        bc:
+          type: string
+        bank_code:
+          type: string
+        loan_id:
+          type: string
+      example:
+        remarks: test
+        date: 22022017
+        bank_ref_num: 99872229222
+        amount: 150000
+        agent_code: 99021232
+        source: Service Provider Name
+        prefunder_bank: 1
+        payment_mode: 4
+        client_ref_id: 24774761487417893000
+        bc: 1
+        bank_code: HDFC
+        loan_id: 429f2733-5b9f-40e6-9b22- fe642efb8aeb
+    Request2:
+      title: Request2
+      required:
+        - plan_id
+        - product_id
+        - step_num
+        - proceed
+        - consumerId
+        - claimed
+        - data
+      type: object
+      properties:
+        plan_id:
+          type: string
+          nullable: true
+        product_id:
+          type: string
+        step_num:
+          type: integer
+          format: int32
+        proceed:
+          type: boolean
+        consumerId:
+          type: string
+          nullable: true
+        claimed:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Data'
+      example:
+        plan_id: null
+        product_id: 4e736c66-5032-7683-4b6d-697771584847
+        step_num: 1
+        proceed: true
+        consumerId: null
+        claimed: false
+        data:
+          loanAmount: 100
+          interestRate: 2
+          interestType: percent
+          repaymentDays: null
+          processingFees: 100
+          loanType: ''
+          tenure: 30
+          additionalData: ''
+          autoRepaymentStatus: 1
+          expiryDate: '15-11-2017 21:00:00'
+    Data:
+      title: Data
+      required:
+        - loanAmount
+        - interestRate
+        - interestType
+        - repaymentDays
+        - processingFees
+        - loanType
+        - tenure
+        - additionalData
+        - autoRepaymentStatus
+        - expiryDate
+      type: object
+      properties:
+        loanAmount:
+          type: string
+        interestRate:
+          type: string
+        interestType:
+          type: string
+        repaymentDays:
+          type: string
+          nullable: true
+        processingFees:
+          type: string
+        loanType:
+          type: string
+        tenure:
+          type: string
+        additionalData:
+          type: string
+        autoRepaymentStatus:
+          type: integer
+          format: int32
+        expiryDate:
+          type: string
+      example:
+        loanAmount: 100
+        interestRate: 2
+        interestType: percent
+        repaymentDays: null
+        processingFees: 100
+        loanType: ''
+        tenure: 30
+        additionalData: ''
+        autoRepaymentStatus: 1
+        expiryDate: '15-11-2017 21:00:00'
+    Request3:
+      title: Request3
+      required:
+        - product_id
+        - step_num
+        - data
+      type: object
+      properties:
+        product_id:
+          type: string
+        step_num:
+          type: integer
+          format: int32
+        data:
+          $ref: '#/components/schemas/Data1'
+      example:
+        product_id: a1ef2e46-c2ed-4b0a-93bb-46954cb4f9a0
+        step_num: 2
+        data:
+          consent:
+            customerAccept: true
+    Data1:
+      title: Data1
+      required:
+        - consent
+      type: object
+      properties:
+        consent:
+          $ref: '#/components/schemas/Consent'
+      example:
+        consent:
+          customerAccept: true
+    Consent:
+      title: Consent
+      required:
+        - customerAccept
+      type: object
+      properties:
+        customerAccept:
+          type: boolean
+      example:
+        customerAccept: true
+    Request4:
+      title: Request4
+      required:
+        - loan_id
+        - disbursement_amount
+        - disbursement_date
+        - due_date
+        - repay_amount
+        - account_no
+        - reference_no
+        - sanction_id
+        - tranche_id
+        - source
+      type: object
+      properties:
+        loan_id:
+          type: string
+        disbursement_amount:
+          type: string
+        disbursement_date:
+          type: string
+        due_date:
+          type: string
+        repay_amount:
+          type: string
+        account_no:
+          type: string
+        reference_no:
+          type: string
+        sanction_id:
+          type: string
+        tranche_id:
+          type: string
+        source:
+          type: integer
+          format: int32
+      example:
+        loan_id: cbc27623-a0af-4838-9f8d-73a829183321
+        disbursement_amount: 100000
+        disbursement_date: 2017-02-24T00:00:00.000Z
+        due_date: 2017-02-28T00:00:00.000Z
+        repay_amount: 56565
+        account_no: 22324234324
+        reference_no: 2342423423
+        sanction_id: fsdfsdfsdfsdfsf
+        tranche_id: sdfsdfsdfsdferefsds
+        source: 1
