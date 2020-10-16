@@ -1,11 +1,6 @@
 const path = require("path");
 
 module.exports = {
-  plugins: [
-    ["docusaurus-plugin-openapi", {
-      openapiPath: require.resolve("./openapi.json"),
-    }],
-  ],
   title: "Eko Platform Services",
   tagline: "Develop with EPS",
   url: "https://ekoindia.github.io/eko-developer-docs/",
