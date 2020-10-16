@@ -14,7 +14,7 @@ function APIDocs() {
     title={`API Docs`}
     description={`Open API Reference Docs for the API`}
   >
-    <Redocusaurus spec="../openapi.yaml" />
+    <Redocusaurus spec="https://ekoindia.github.io/openapi-spec/openapi.yaml" />
   </Layout>
   );
 }
