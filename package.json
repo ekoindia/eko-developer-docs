@@ -15,7 +15,6 @@
     "@docusaurus/preset-classic": "^2.0.0-alpha.58",
     "@mdx-js/react": "^1.6.18",
     "clsx": "^1.1.1",
-    "docusaurus-plugin-openapi": "^0.0.12",
     "lodash.merge": "^4.6.2",
     "mobx-persist": "^0.4.1",
     "mobx-react-form": "^2.0.9",
