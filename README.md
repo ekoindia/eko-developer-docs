@@ -51,6 +51,8 @@ $ npm i react react-dom mobx styled-components core-js
 
 ### Redocusaurus (Redoc + Docusaurus)
 
-See this link: https://gist.github.com/rohit-gohri/b1a19f37702cfe4a6c5a47933a11785b to see how to import Redoc into a react component and pass in a yaml/json OpenAPI doc
+This link (https://gist.github.com/rohit-gohri/b1a19f37702cfe4a6c5a47933a11785b) shows how to import Redoc into a react component and pass in a yaml/json OpenAPI doc
+
+Also, redoc.css is used to ensure the API Docs has the same css styles as the rest of the docusaurus pages
 
 
