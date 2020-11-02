@@ -8,7 +8,8 @@
     "openapi": "nodemon -e yaml,yml,js,json --watch \"./openapi/**\" --exec \"openapi-comment-parser openapi openapi-gen.json\"",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy"
+    "deploy": "docusaurus deploy",
+    "serve": "docusaurus serve"
   },
   "dependencies": {
     "@docusaurus/core": "^2.0.0-alpha.58",
