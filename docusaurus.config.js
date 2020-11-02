@@ -2,6 +2,7 @@ const path = require("path");
 
 module.exports = {
   title: "Eko Platform Services",
+  onBrokenLinks: "ignore",
   tagline: "Develop with EPS",
   url: "https://ekoindia.github.io/eko-developer-docs/",
   baseUrl: "/",
@@ -15,7 +16,7 @@ module.exports = {
         alt: "Eko's Logo",
         src: "img/logo.svg",
       },
-      links: [
+      items: [
         {
           to: "docs/doc1",
           activeBasePath: "docs/doc1",
@@ -89,14 +90,14 @@ module.exports = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl:
-            "https://github.com/facebook/docusaurus/edit/master/website/",
+          "https://github.com/ekoindia/eko-developer-docs"
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            "https://github.com/facebook/docusaurus/edit/master/website/blog/",
-        },
+        // blog: {
+        //   showReadingTime: true,
+        //   // Please change this to your repo.
+        //   editUrl:
+        //     "https://github.com/facebook/docusaurus/edit/master/website/blog/",
+        // },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
