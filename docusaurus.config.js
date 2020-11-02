@@ -4,8 +4,8 @@ module.exports = {
   title: "Eko Platform Services",
   onBrokenLinks: "ignore",
   tagline: "Develop with EPS",
-  url: "https://ekoindia.github.io/eko-developer-docs/",
-  baseUrl: "/eko-developer-docs/",
+  url: "https://ekoindia.github.io/eko-developer-docs",
+  baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "ekoindia", // Usually your GitHub org/user name.
   projectName: "eko-developer-docs", // Usually your repo name.
@@ -92,6 +92,7 @@ module.exports = {
           editUrl:
           "https://github.com/ekoindia/eko-developer-docs"
         },
+
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
